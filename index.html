@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>scan</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Lottie Player CDN -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <!-- Google Fonts - Inter & Michroma for neon effect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Michroma&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d; /* Dark background for neon effect */
+        }
+        .progress-bar-inner {
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        .animate-bounce-custom {
+            animation: bounce-custom 2s infinite;
+        }
+        @keyframes bounce-custom {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .swal-small {
+            max-width: 400px;
+        }
+        .neon-clock {
+            font-family: 'Michroma', sans-serif;
+            color: #fff; /* Initial color */
+            text-shadow: 
+                0 0 5px #0ff, 
+                0 0 10px #0ff, 
+                0 0 20px #0ff, 
+                0 0 40px #0ff, 
+                0 0 80px #0ff;
+        }
+        .rounded-neon-bg {
+            background-color: #1a1a1a;
+            box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Kontainer Aplikasi Pembersih (Tampilan Awal) -->
+    <div id="cleaner-app" class="bg-gray-800 text-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center transition-all duration-1000">
+
+        <!-- Header Aplikasi -->
+        <h1 class="text-3xl font-bold mb-2">Pembersih Sampah Otomatis</h1>
+        <p class="text-gray-400 mb-6">Bersihkan perangkatmu untuk mendapatkan performa terbaik!</p>
+        
+        <!-- Ikon Pembersih -->
+        <div class="flex justify-center mb-6 animate-bounce-custom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16 text-blue-400">
+                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-8a1 1 0 012 0v5a1 1 0 01-2 0v-5zm1-7a1 1 0 110-2 1 1 0 010 2z"/>
+            </svg>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-600 rounded-full h-4 mb-4">
+            <div id="progress-bar" class="progress-bar-inner bg-blue-400 h-full rounded-full"></div>
+        </div>
+
+        <!-- Status Teks -->
+        <p id="status-text" class="text-sm text-gray-400 mb-6">Klik tombol di bawah untuk memulai pembersihan.</p>
+
+        <!-- Tombol Mulai -->
+        <button id="start-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform duration-300 transform hover:scale-105">
+            Mulai Pembersihan
+        </button>
+    </div>
+
+    <!-- Kontainer Kejutan Ulang Tahun (Tersembunyi Awalnya) -->
+    <div id="birthday-surprise" class="hidden bg-gradient-to-br from-pink-900 to-red-800 text-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center transition-all duration-1000 opacity-0 transform scale-95">
+        
+        <!-- Jam Digital Neon -->
+        <div class="rounded-full p-4 mb-4 mx-auto w-44 flex items-center justify-center rounded-neon-bg">
+            <span id="current-time" class="text-3xl font-bold tracking-wider neon-clock"></span>
+        </div>
+
+        <!-- Pesan Utama -->
+        <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 animate-pulse">
+            Selamat Ulang Tahun!
+        </h1>
+        <p class="text-lg mb-6">
+            Maaf, tidak ada sampah yang ditemukan di sini...
+        </p>
+
+        <!-- Video Kejutan -->
+        <video 
+            id="birthday-video"
+            src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" 
+            class="w-full h-auto rounded-xl shadow-lg mb-6" 
+            autoplay 
+            loop 
+            muted 
+            playsinline>
+            Browser Anda tidak mendukung tag video.
+        </video>
+        
+        <!-- Pesan Personal -->
+        <p class="text-xl font-medium leading-relaxed mb-6">
+            Kejutan ini khusus untukmu, karena kamu pantas mendapatkan semua kebahagiaan di dunia. <br>
+            panjang umur ya.
+        </p>
+        
+        <!-- Pemutar Musik (Autoplay dan Loop) -->
+        <audio id="birthday-song" autoplay loop>
+            <!-- Ganti URL di bawah ini dengan lagu ulang tahun pilihanmu -->
+            <source src="https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <!-- Script JavaScript untuk interaksi -->
+    <script>
+        const startButton = document.getElementById('start-button');
+        const progressBar = document.getElementById('progress-bar');
+        const statusText = document.getElementById('status-text');
+        const cleanerApp = document.getElementById('cleaner-app');
+        const birthdaySurprise = document.getElementById('birthday-surprise');
+        const currentTimeElement = document.getElementById('current-time');
+        const birthdaySong = document.getElementById('birthday-song');
+
+        // Fungsi untuk mengupdate jam setiap detik
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            currentTimeElement.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Jalankan update jam setiap 1 detik
+        setInterval(updateTime, 1000);
+
+        // Tambahkan event listener untuk tombol mulai
+        startButton.addEventListener('click', () => {
+            // Nonaktifkan tombol untuk mencegah klik ganda
+            startButton.disabled = true;
+            startButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const statusMessages = [
+                "Menganalisis file sampah...",
+                "Menghapus cache aplikasi...",
+                "Mengoptimalkan memori...",
+                "Memindai virus...",
+                "Hampir selesai...",
+            ];
+
+            // Animasi progress bar dan status
+            let progress = 0;
+            let step = 0;
+            const interval = setInterval(() => {
+                // Tambah progress bar
+                progress += 15;
+                progressBar.style.width = `${progress}%`;
+
+                // Update status teks
+                if (step < statusMessages.length) {
+                    statusText.textContent = statusMessages[step];
+                    step++;
+                }
+
+                // Jika progress mencapai 100%
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Tampilkan SweetAlert setelah pemindaian selesai
+                    Swal.fire({
+                        title: 'Pembersihan Selesai!',
+                        html: 'Ditemukan 1 item penting yang tidak bisa dihapus.<br><lottie-player src="https://lottie.host/973797fd-b590-449e-8c3b-55118778f56f/H6Y9L6iY1Z.json" background="transparent" speed="1" style="width: 100px; height: 100px; margin: auto;" loop autoplay></lottie-player>',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        customClass: {
+                            popup: 'swal-small',
+                        },
+                        didClose: () => {
+                            // Setelah SweetAlert tertutup, tampilkan kejutan ulang tahun
+                            cleanerApp.classList.add('opacity-0', 'scale-95');
+                            
+                            setTimeout(() => {
+                                cleanerApp.classList.add('hidden');
+                                birthdaySurprise.classList.remove('hidden');
+                                
+                                setTimeout(() => {
+                                    birthdaySurprise.classList.remove('opacity-0', 'scale-95');
+                                    if (birthdaySong) {
+                                        birthdaySong.play().catch(e => console.error("Autoplay failed:", e));
+                                    }
+                                }, 50);
+                            }, 500);
+                        }
+                    });
+                }
+            }, 400); // Interval 0.4 detik
+        });
+    </script>
+</body>
+</html>
